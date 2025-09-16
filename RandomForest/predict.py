@@ -5,14 +5,20 @@ def run_prediction():
 
     # Example new data (replace with real satellite/sensor values)
     new_data = {
-        "N": 90,
-        "P": 42,
-        "K": 43,
-        "temperature": 25.5,
-        "humidity": 80.0,
-        "ph": 6.5,
-        "rainfall": 210.0
-    }
+    "N": 120,
+    "P": 70,
+    "K": 200,
+    "temperature": 30.0,
+    "humidity": 80.0,
+    "ph": 6.5,
+    "rainfall": 2000.0
+}
+
+
+
+
+    
+    
 
     crop = predict_crop(model, encoder, new_data)
     print("🌱 Recommended Crop:", crop)
