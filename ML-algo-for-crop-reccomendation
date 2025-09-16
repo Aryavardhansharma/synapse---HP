@@ -1,0 +1,47 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.metrics import accuracy_score
+
+
+n_samples = 9999
+ages = np.random.randint(20, 61, n_samples)           # Age 20-60
+salaries = np.random.randint(30, 101, n_samples)      # Salary 30k-100k
+genders = np.random.choice(['Male','Female'], n_samples)
+buys = []
+for age, salary in zip(ages, salaries):
+    if (salary > 60 and age < 40):
+        buys.append('Yes')
+    elif (salary > 80 and age < 50):
+        buys.append('Yes')
+    else:
+        # Introduce some randomness
+        buys.append(np.random.choice(['Yes','No'], p=[0.3,0.7]))
+
+# Create DataFrame
+df = pd.DataFrame({
+    'Age': ages,
+    'Salary': salaries,
+    'Gender': genders,
+    'Buys': buys
+})
+
+le_gender = LabelEncoder()
+df['Gender'] = le_gender.fit_transform(df['Gender'])  
+
+le_buys = LabelEncoder()
+df['Buys'] = le_buys.fit_transform(df['Buys'])        
+
+X = df[['Age', 'Salary', 'Gender']]
+Y = df['Buys']
+
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size=0.2, random_state=42)
+
+rf = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=7)
+
+# 5-fold cross-validation
+scores = cross_val_score(rf, X, Y, cv=5, scoring='accuracy')
+print("Accuracy per fold:", scores)
+print("Average accuracy:", np.mean(scores))
