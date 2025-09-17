@@ -4,7 +4,7 @@ from utils import load_data, train_model, save_model, predict_crop
 
 def run_training():
     # Load dataset
-    X, y = load_data()  # CSV must be in the same folder
+    X, y = load_data()  
 
     # Train model
     model, encoder = train_model(X, y)
