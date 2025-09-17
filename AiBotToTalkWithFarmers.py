@@ -1,40 +1,55 @@
 from huggingface_hub import login
 login("hugging_face")
 
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, GenerationConfig
+import torch, logging
+import os
 
-# Use the chat-optimized 7B model
-model_name = "meta-llama/Llama-2-7b-chat-hf"
+# If required, login with HF token
+# from huggingface_hub import login
+# login(token=os.getenv("HF_TOKEN"))
 
-# 8-bit is safer in free Colab (4-bit may fail if GPU doesn’t support it)
+logging.getLogger("accelerate").setLevel(logging.ERROR)
+
+model_name = "meta-llama/Meta-Llama-3-8B-Instruct"  # or "meta-llama/Meta-Llama-3-8B"
+
+# Quantization config (change 4-bit or 8-bit depending on what works)
 bnb_config = BitsAndBytesConfig(
-    load_in_8bit=True,   # More stable on Colab Free
-    llm_int8_threshold=6.0,
-    llm_int8_skip_modules=["lm_head"]
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_use_double_quant=True
 )
 
-# Load tokenizer
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
 
-# Load model with quantization
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
     device_map="auto"
 )
 
-# Test prompt
-prompt = "Explain what reinforcement learning is in simple terms."
-inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+def simple_hindi_answer(crop, soil, weather, market):
+    prompt = f"""आप किसान मित्र हैं।
+अनुशंसित फसल: {crop}
+मिट्टी: {soil}
+मौसम: {weather}
+बाज़ार: {market}
 
-# Generate text
-outputs = model.generate(
-    **inputs,
-    max_new_tokens=150,
-    temperature=0.7,
-    do_sample=True,
-    top_p=0.9
-)
+कृपया आसान और साधारण हिंदी में, छोटे वाक्यों का उपयोग करके समझाइए।
+तकनीकी शब्दों का उपयोग न करें।
+बिंदुवार उत्तर दीजिए।
+"""
+    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    generation_config = GenerationConfig(
+        max_new_tokens=150,
+        temperature=0.6,
+        top_p=0.9,
+        do_sample=True
+    )
+    output = model.generate(**inputs, generation_config=generation_config)
+    text = tokenizer.decode(output[0], skip_special_tokens=True)
+    return text
 
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+# Test
+print(simple_hindi_answer("गेहूँ (Wheat)", "pH 6.5", "बरसात 300mm", "मंडी भाव अच्छा है"))
