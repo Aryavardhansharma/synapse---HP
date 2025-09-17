@@ -9,9 +9,9 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 import chardet
 
-# -----------------------------
+
 # Load Data with auto-encoding
-# -----------------------------
+
 def load_data(path=r"C:\Users\harshit choudhary\OneDrive\Desktop\dihhdihh\RandomForest\Crop_recommendation.csv"):
     """
     Load CSV dataset from same folder and split into features (X) and labels (y)
@@ -27,9 +27,9 @@ def load_data(path=r"C:\Users\harshit choudhary\OneDrive\Desktop\dihhdihh\Random
     y = df["label"]
     return X, y
 
-# -----------------------------
+
 # Train Random Forest Model
-# -----------------------------
+
 def train_model(X, y, max_depth=12, estimator_range=[10, 50, 100, 150, 200, 250, 300]):
     """
     Train Random Forest classifier, plot train vs test accuracy for different n_estimators,
@@ -106,25 +106,25 @@ def train_model(X, y, max_depth=12, estimator_range=[10, 50, 100, 150, 200, 250,
 
     return final_rf, label_encoder
 
-# -----------------------------
+
 # Save Model and Encoder
-# -----------------------------
+
 def save_model(model, encoder, model_path="crop_rf_model.pkl", encoder_path="label_encoder.pkl"):
     joblib.dump(model, model_path)
     joblib.dump(encoder, encoder_path)
     print(f"💾 Model saved as {model_path}, encoder saved as {encoder_path}")
 
-# -----------------------------
+
 # Load Model and Encoder
-# -----------------------------
+
 def load_model(model_path="crop_rf_model.pkl", encoder_path="label_encoder.pkl"):
     model = joblib.load(model_path)
     encoder = joblib.load(encoder_path)
     return model, encoder
 
-# -----------------------------
+
 # Predict Crop
-# -----------------------------
+
 def predict_crop(model, encoder, data_dict):
     """
     Predict crop name from input dictionary of features
