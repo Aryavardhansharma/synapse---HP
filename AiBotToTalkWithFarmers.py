@@ -1,17 +1,18 @@
 from huggingface_hub import login
-login("hugging_face")
-
+from dotenv import load_dotenv
+import os
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, GenerationConfig
 import torch, logging
-import os
 
-# If required, login with HF token
-# from huggingface_hub import login
-# login(token=os.getenv("HF_TOKEN"))
+
+load_dotenv()
+hf_token = os.getenv("HF_TOKEN")
+login(hf_token)
+
 
 logging.getLogger("accelerate").setLevel(logging.ERROR)
 
-model_name = "meta-llama/Meta-Llama-3-8B-Instruct"  # or "meta-llama/Meta-Llama-3-8B"
+model_name = "meta-llama/Meta-Llama-3-8B-Instruct"  
 
 # Quantization config (change 4-bit or 8-bit depending on what works)
 bnb_config = BitsAndBytesConfig(
